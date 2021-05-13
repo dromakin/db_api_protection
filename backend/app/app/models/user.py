@@ -20,6 +20,7 @@ from app.db.base_class import Base
 
 if TYPE_CHECKING:
     from .item import Item  # noqa: F401
+    from .statistic import Statistic  # noqa: F401
 
 
 class User(Base):
