@@ -33,34 +33,36 @@ def read_statistics(
     Retrieve statistics.
     """
     if crud.user.is_superuser(current_user):
-        statistics = crud.statistic.get_multi(db, skip=skip, limit=limit)
+        statistics = crud.statistic.get_multi_statistics(db, skip=skip, limit=limit)
     else:
         statistics = crud.statistic.get_multi_by_customer(
-            db=db, owner_id=current_user.id, skip=skip, limit=limit
+            db=db, customer_id=current_user.id, skip=skip, limit=limit
         )
     return statistics
 
 
 @router.post("/", response_model=schemas.Statistic)
-def create_item(
+def create_statistic(
     *,
     db: Session = Depends(deps.get_db),
-    item_in: schemas.StatisticCreate,
+    statistic_in: schemas.StatisticCreate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Create new statistic.
     """
-    item = crud.statistic.create_with_customer(db=db, obj_in=item_in, customer_id=current_user.id)
+    item = crud.statistic.create_with_customer(
+        db=db, obj_in=statistic_in, customer_id=current_user.id
+    )
     return item
 
 
 @router.put("/{id}", response_model=schemas.Statistic)
-def update_item(
+def update_statistic(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    item_in: schemas.StatisticUpdate,
+    statistic_in: schemas.StatisticUpdate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
@@ -71,12 +73,12 @@ def update_item(
         raise HTTPException(status_code=404, detail="Statistic not found")
     if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    statistic = crud.statistic.update(db=db, db_obj=statistic, obj_in=item_in)
+    statistic = crud.statistic.update(db=db, db_obj=statistic, obj_in=statistic_in)
     return statistic
 
 
 @router.get("/{id}", response_model=schemas.Statistic)
-def read_item(
+def read_statistic(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
@@ -93,8 +95,96 @@ def read_item(
     return statistic
 
 
+@router.get("/{tid}", response_model=schemas.Statistic)
+def read_statistic(
+    *,
+    db: Session = Depends(deps.get_db),
+    tid: str,
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Get statistic by tid.
+    """
+    statistic = crud.statistic.get_multi_by_customer_tid(
+        db=db, customer_id=current_user.id, tid=tid, skip=skip, limit=limit
+    )
+    if not statistic:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return statistic
+
+
+@router.get("/{target}", response_model=schemas.Statistic)
+def read_statistic(
+    *,
+    db: Session = Depends(deps.get_db),
+    target: str,
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Get statistic by target.
+    """
+    statistic = crud.statistic.get_multi_by_customer_target(
+        db=db, customer_id=current_user.id, target=target, skip=skip, limit=limit,
+    )
+    if not statistic:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return statistic
+
+
+@router.get("/{cookie}", response_model=schemas.Statistic)
+def read_statistic(
+    *,
+    db: Session = Depends(deps.get_db),
+    cookie: str,
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Get statistic by cookie.
+    """
+    statistic = crud.statistic.get_multi_by_customer_cookie(
+        db=db, customer_id=current_user.id, cookie=cookie, skip=skip, limit=limit,
+    )
+    if not statistic:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return statistic
+
+
+@router.get("/{platform}", response_model=schemas.Statistic)
+def read_statistic(
+    *,
+    db: Session = Depends(deps.get_db),
+    platform: str,
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Get statistic by platform.
+    """
+    statistic = crud.statistic.get_multi_by_customer_platform(
+        db=db, customer_id=current_user.id, platform=platform, skip=skip, limit=limit,
+    )
+    if not statistic:
+        raise HTTPException(status_code=404, detail="Statistic not found")
+    if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    return statistic
+
+
 @router.delete("/{id}", response_model=schemas.Statistic)
-def delete_item(
+def delete_statistic(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
@@ -105,7 +195,7 @@ def delete_item(
     """
     statistic = crud.statistic.get(db=db, id=id)
     if not statistic:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Statistic not found")
     if not crud.user.is_superuser(current_user) and (statistic.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
     statistic = crud.statistic.remove(db=db, id=id)
