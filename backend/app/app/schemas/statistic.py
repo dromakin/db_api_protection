@@ -60,3 +60,11 @@ class StatisticInDB(StatisticInDBBase):
     pass
 
 
+# SEARCH
+class StatisticAPI(BaseModel):
+    tid: Optional[str]
+    target: Optional[str]
+    cookie: Optional[str]
+    platform: Optional[str]
+    skip: int = 0
+    limit: int = 100

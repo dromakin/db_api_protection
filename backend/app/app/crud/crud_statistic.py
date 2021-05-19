@@ -65,12 +65,34 @@ class CRUDStatistic(CRUDBase[Statistic, StatisticCreate, StatisticUpdate]):
                 .all()
         )
 
+    def get_multi_by_tid(
+            self, db: Session, *, tid: str, skip: int = 0, limit: int = 100
+    ) -> List[List]:
+        return (
+            db.query(self.model)
+                .filter(Statistic.tid == tid)
+                .offset(skip)
+                .limit(limit)
+                .all()
+        )
+
     def get_multi_by_customer_target(
             self, db: Session, *, customer_id: int, target: str, skip: int = 0, limit: int = 100
     ) -> List[List]:
         return (
             db.query(self.model)
                 .filter(Statistic.customer_id == customer_id)
+                .filter(Statistic.target == target)
+                .offset(skip)
+                .limit(limit)
+                .all()
+        )
+
+    def get_multi_by_target(
+            self, db: Session, *, target: str, skip: int = 0, limit: int = 100
+    ) -> List[List]:
+        return (
+            db.query(self.model)
                 .filter(Statistic.target == target)
                 .offset(skip)
                 .limit(limit)
@@ -89,12 +111,34 @@ class CRUDStatistic(CRUDBase[Statistic, StatisticCreate, StatisticUpdate]):
                 .all()
         )
 
+    def get_multi_by_cookie(
+            self, db: Session, *, cookie: str, skip: int = 0, limit: int = 100
+    ) -> List[List]:
+        return (
+            db.query(self.model)
+                .filter(Statistic.cookie == cookie)
+                .offset(skip)
+                .limit(limit)
+                .all()
+        )
+
     def get_multi_by_customer_platform(
             self, db: Session, *, customer_id: int, platform: str, skip: int = 0, limit: int = 100
     ) -> List[List]:
         return (
             db.query(self.model)
                 .filter(Statistic.customer_id == customer_id)
+                .filter(Statistic.platform == platform)
+                .offset(skip)
+                .limit(limit)
+                .all()
+        )
+
+    def get_multi_by_platform(
+            self, db: Session, *, platform: str, skip: int = 0, limit: int = 100
+    ) -> List[List]:
+        return (
+            db.query(self.model)
                 .filter(Statistic.platform == platform)
                 .offset(skip)
                 .limit(limit)

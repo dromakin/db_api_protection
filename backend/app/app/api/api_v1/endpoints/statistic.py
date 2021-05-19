@@ -78,7 +78,7 @@ def update_statistic(
 
 
 @router.get("/{id}", response_model=schemas.Statistic)
-def read_statistic(
+def read_statistic_by_id(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
@@ -95,21 +95,28 @@ def read_statistic(
     return statistic
 
 
-@router.get("/{tid}", response_model=schemas.Statistic)
-def read_statistic(
+@router.post("/get_statistic_by_tid", response_model=List[schemas.Statistic])
+def read_statistic_by_tid(
     *,
     db: Session = Depends(deps.get_db),
-    tid: str,
-    skip: int = 0,
-    limit: int = 100,
+    statistic_model: schemas.statistic.StatisticAPI,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get statistic by tid.
     """
-    statistic = crud.statistic.get_multi_by_customer_tid(
-        db=db, customer_id=current_user.id, tid=tid, skip=skip, limit=limit
-    )
+    tid = str(statistic_model.tid)
+    skip = int(statistic_model.skip)
+    limit = int(statistic_model.limit)
+
+    if crud.user.is_superuser(current_user):
+        statistic = crud.statistic.get_multi_by_tid(
+            db=db, tid=tid, skip=skip, limit=limit
+        )
+    else:
+        statistic = crud.statistic.get_multi_by_customer_tid(
+            db=db, customer_id=current_user.id, tid=tid, skip=skip, limit=limit
+        )
     if not statistic:
         raise HTTPException(status_code=404, detail="Statistic not found")
     if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
@@ -117,21 +124,28 @@ def read_statistic(
     return statistic
 
 
-@router.get("/{target}", response_model=schemas.Statistic)
-def read_statistic(
+@router.post("/get_statistic_by_target", response_model=List[schemas.Statistic])
+def read_statistic_by_target(
     *,
     db: Session = Depends(deps.get_db),
-    target: str,
-    skip: int = 0,
-    limit: int = 100,
+    statistic_model: schemas.statistic.StatisticAPI,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get statistic by target.
     """
-    statistic = crud.statistic.get_multi_by_customer_target(
-        db=db, customer_id=current_user.id, target=target, skip=skip, limit=limit,
-    )
+    target = str(statistic_model.target)
+    skip = int(statistic_model.skip)
+    limit = int(statistic_model.limit)
+
+    if crud.user.is_superuser(current_user):
+        statistic = crud.statistic.get_multi_by_target(
+            db=db, target=target, skip=skip, limit=limit,
+        )
+    else:
+        statistic = crud.statistic.get_multi_by_customer_target(
+            db=db, customer_id=current_user.id, target=target, skip=skip, limit=limit,
+        )
     if not statistic:
         raise HTTPException(status_code=404, detail="Statistic not found")
     if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
@@ -139,21 +153,28 @@ def read_statistic(
     return statistic
 
 
-@router.get("/{cookie}", response_model=schemas.Statistic)
-def read_statistic(
+@router.post("/get_statistic_by_cookie", response_model=List[schemas.Statistic])
+def read_statistic_by_cookie(
     *,
     db: Session = Depends(deps.get_db),
-    cookie: str,
-    skip: int = 0,
-    limit: int = 100,
+    statistic_model: schemas.statistic.StatisticAPI,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get statistic by cookie.
     """
-    statistic = crud.statistic.get_multi_by_customer_cookie(
-        db=db, customer_id=current_user.id, cookie=cookie, skip=skip, limit=limit,
-    )
+    cookie = str(statistic_model.cookie)
+    skip = int(statistic_model.skip)
+    limit = int(statistic_model.limit)
+
+    if crud.user.is_superuser(current_user):
+        statistic = crud.statistic.get_multi_by_cookie(
+            db=db, cookie=cookie, skip=skip, limit=limit,
+        )
+    else:
+        statistic = crud.statistic.get_multi_by_customer_cookie(
+            db=db, customer_id=current_user.id, cookie=cookie, skip=skip, limit=limit,
+        )
     if not statistic:
         raise HTTPException(status_code=404, detail="Statistic not found")
     if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
@@ -161,25 +182,33 @@ def read_statistic(
     return statistic
 
 
-@router.get("/{platform}", response_model=schemas.Statistic)
-def read_statistic(
+@router.post("/get_statistic_by_platform", response_model=List[schemas.Statistic])
+def read_statistic_by_platform(
     *,
     db: Session = Depends(deps.get_db),
-    platform: str,
-    skip: int = 0,
-    limit: int = 100,
+    statistic_model: schemas.statistic.StatisticAPI,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get statistic by platform.
     """
-    statistic = crud.statistic.get_multi_by_customer_platform(
-        db=db, customer_id=current_user.id, platform=platform, skip=skip, limit=limit,
-    )
+    platform = str(statistic_model.platform)
+    skip = int(statistic_model.skip)
+    limit = int(statistic_model.limit)
+
+    if crud.user.is_superuser(current_user):
+        statistic = crud.statistic.get_multi_by_platform(
+            db=db, customer_id=current_user.id, platform=platform, skip=skip, limit=limit,
+        )
+    else:
+        statistic = crud.statistic.get_multi_by_customer_platform(
+            db=db, customer_id=current_user.id, platform=platform, skip=skip, limit=limit,
+        )
     if not statistic:
         raise HTTPException(status_code=404, detail="Statistic not found")
     if not crud.user.is_superuser(current_user) and (statistic.customer_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
+
     return statistic
 
 
