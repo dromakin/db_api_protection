@@ -2,11 +2,19 @@ FROM python:3.7
 
 WORKDIR /app/
 
+# poetry
+# https://python-poetry.org/docs/configuration/#using-environment-variables
+#ENV POETRY_VERSION=1.2.0
+
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+RUN #poetry install --no-dev
+
 # Install Poetry
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python && \
-    cd /usr/local/bin && \
-    ln -s /opt/poetry/bin/poetry && \
-    poetry config virtualenvs.create false
+#RUN RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python && \
+#    cd /usr/local/bin && \
+#    ln -s /opt/poetry/bin/poetry && \
+#    poetry config virtualenvs.create false
 
 # Copy poetry.lock* in case it doesn't exist in the repo
 COPY ./app/pyproject.toml ./app/poetry.lock* /app/

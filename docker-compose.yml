@@ -106,6 +106,7 @@ services:
 
   queue:
     image: rabbitmq:3
+#    image: rabbitmq:3-management
     # Using the below image instead is required to enable the "Broker" tab in the flower UI:
     # image: rabbitmq:3-management
     #
@@ -116,10 +117,18 @@ services:
     networks:
       - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
       - default
+    depends_on:
+      - celeryworker
+    environment:
+      - CELERY_BROKER_URL=pyamqp://guest@queue//
     env_file:
       - .env
-    command:
-      - "--broker=amqp://guest@queue:5672//"
+#    command:
+#      - "--broker=amqp://admin:guest@queue:5672//"
+#      - "--broker=amqp://guest:guest@queue:5672//"
+#      - "--broker=pyamqp://guest@queue//"
+#      - "flower --broker=pyamqp://guest@queue:5672// --port=8888"
+#      - "--broker=amqp://guest@queue:5672// --port=8888"
       # For the "Broker" tab to work in the flower UI, uncomment the following command argument,
       # and change the queue service's image as well
       # - "--broker_api=http://guest:guest@queue:15672/api//"
@@ -136,7 +145,8 @@ services:
         - traefik.http.routers.${STACK_NAME?Variable not set}-flower-https.tls=true
         - traefik.http.routers.${STACK_NAME?Variable not set}-flower-https.tls.certresolver=le
         - traefik.http.services.${STACK_NAME?Variable not set}-flower.loadbalancer.server.port=5555
-  
+
+
   backend:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     depends_on:
